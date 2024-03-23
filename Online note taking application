@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Online Notes</title>
+<style>
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+
+  li {
+    margin-bottom: 10px;
+  }
+
+  .note {
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+
+  .note:hover {
+    background-color: #e0e0e0;
+  }
+
+  button {
+    padding: 5px 10px;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: #555;
+  }
+
+  #noteInput {
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 10px;
+  }
+
+  #noteTextarea {
+    width: 100%;
+    height: 100px;
+    padding: 5px;
+    margin-bottom: 10px;
+  }
+</style>
+</head>
+<body>
+
+<h2>Online Notes</h2>
+
+<input type="text" id="noteInput" placeholder="Note Title">
+<textarea id="noteTextarea" placeholder="Note Content"></textarea>
+<button onclick="addNote()">Add Note</button>
+
+<ul id="noteList"></ul>
+
+<script>
+  let notes = [];
+
+  function addNote() {
+    const noteInput = document.getElementById('noteInput');
+    const noteTextarea = document.getElementById('noteTextarea');
+    const title = noteInput.value.trim();
+    const content = noteTextarea.value.trim();
+    if (title !== '' && content !== '') {
+      const note = { title, content };
+      notes.push(note);
+      saveNotes();
+      renderNotes();
+      noteInput.value = '';
+      noteTextarea.value = '';
+    }
+  }
+
+  function editNote(index) {
+    const noteInput = document.getElementById('noteInput');
+    const noteTextarea = document.getElementById('noteTextarea');
+    noteInput.value = notes[index].title;
+    noteTextarea.value = notes[index].content;
+    notes.splice(index, 1);
+    saveNotes();
+    renderNotes();
+  }
+
+  function deleteNote(index) {
+    notes.splice(index, 1);
+    saveNotes();
+    renderNotes();
+  }
+
+  function saveNotes() {
+    localStorage.setItem('notes', JSON.stringify(notes));
+  }
+
+  function loadNotes() {
+    const storedNotes = localStorage.getItem('notes');
+    if (storedNotes) {
+      notes = JSON.parse(storedNotes);
+      renderNotes();
+    }
+  }
+
+  function renderNotes() {
+    const noteListElement = document.getElementById('noteList');
+    noteListElement.innerHTML = '';
+
+    notes.forEach((note, index) => {
+      const li = document.createElement('li');
+      li.classList.add('note');
+      li.textContent = `${note.title}: ${note.content}`;
+      li.onclick = () => editNote(index);
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = 'Delete';
+      deleteButton.onclick = (event) => {
+        event.stopPropagation();
+        deleteNote(index);
+      };
+      li.appendChild(deleteButton);
+      noteListElement.appendChild(li);
+    });
+  }
+
+  loadNotes();
+</script>
+
+</body>
+</html>
